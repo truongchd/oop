@@ -1,8 +1,6 @@
 // HW1 2-d array Problems
 // CharGrid encapsulates a 2-d grid of chars and supports
 // a few operations on the grid.
-import java.lang.*;
-import java.util.*;
 
 public class CharGrid {
 	private char[][] grid;

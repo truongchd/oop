@@ -1,7 +1,3 @@
-import java.util.HashSet;
-import java.util.Set;
-import java.lang.*;
-
 // CS108 HW1 -- String static methods
 
 public class StringCode {
