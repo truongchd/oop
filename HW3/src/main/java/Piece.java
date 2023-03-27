@@ -103,6 +103,10 @@ public class Piece {
         return this.next;
     }
 
+    public TPoint getCenter() {
+        return this.center;
+    }
+
     /**
      * Returns a pointer to the piece's skirt. For each x value
      * across the piece, the skirt gives the lowest y value in the body.
@@ -149,39 +153,33 @@ public class Piece {
                 int lengthOfArr = 5 - Math.toIntExact(Math.abs(this.width - this.height));
                 TPoint ohoh = new TPoint(0, 0);
                 this.pieces = new Piece[lengthOfArr];
-                TPoint[] normalized = new TPoint[this.body.length];
-                for (int i = 0; i < this.body.length; i++) {
-                    normalized[i] = new TPoint(this.body[i].x - this.center.x, this.body[i].y - this.center.y);
-                    normalized[i].rotate(ohoh);
-                }
-                System.out.println("a");
-                for (int i = 0; i < normalized.length; i++) {
-                    System.out.println(normalized[i].x + " " + normalized[i].y);
-                }
-                this.pieces[0] = new Piece(normalized);
+                this.pieces[0] = this;
+                TPoint[] normalized;
                 for (int j = 1; j < lengthOfArr; j++) {
                     Piece currentPiece = this.pieces[j - 1];
                     normalized = new TPoint[currentPiece.getBody().length];
                     for (int i = 0; i < currentPiece.getBody().length; i++) {
                         normalized[i] = new TPoint(currentPiece.getBody()[i].x, currentPiece.getBody()[i].y);
-                        normalized[i].rotate(ohoh);
+                        normalized[i].rotate(currentPiece.getCenter());
                     }
                     this.pieces[j] = new Piece(normalized);
                 } 
 
                 // this.next
-                normalized = new TPoint[this.pieces[1].getBody().length];
-                for (int i = 0; i < this.pieces[1].getBody().length; i++) {
-                    normalized[i] = new TPoint(this.pieces[1].getBody()[i].x + this.center.x, this.pieces[1].getBody()[i].y + this.center.y);
-                }
-                this.next = new Piece(normalized);
+                this.next = this.pieces[1];
+                this.next.setPieces(this.pieces);
             }
         }
         return this.next;
     }
 
     public void setPieces(Piece[] rotations) {
-        this.pieces = rotations;
+        this.pieces = new Piece[rotations.length];
+        for (int i = 0; i < rotations.length - 1; i++) {
+            this.pieces[i] = rotations[i + 1];
+        }
+        this.pieces[rotations.length - 1] = rotations[0];
+        this.next = this.pieces[1];
     }
 
     /**
