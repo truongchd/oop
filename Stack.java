@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Stack {
-    private Vector<String> stack = new Vector<String>();
+    private Vector stack = new Vector<>();
 
     public void push(String a){
         stack.add(a);
@@ -28,7 +28,7 @@ public class Stack {
         stack.push("Hello");
 
         String s = stack.pop();
-        System.out.println(s);
+        System.out.println(stack.pop());
         System.out.println(stack.isEmpty());
     }
 }

@@ -26,6 +26,7 @@ public class Piece {
     private int width;
     private int height;
     private Piece next; // "next" rotation
+    private TPoint center;
 
     static private Piece[] pieces;    // singleton static array of first rotations
 
@@ -35,6 +36,35 @@ public class Piece {
      */
     public Piece(TPoint[] points) {
         // YOUR CODE HERE
+        // this.body + this.center
+        this.body = new TPoint[points.length];
+        float sumX = 0.0F, sumY = 0.0F;
+        for (int i = 0; i< points.length; i++) {
+            this.body[i] = new TPoint(points[i].x, points[i].y);
+            sumX += points[i].x;
+            sumY += points[i].y;
+        }
+        this.body = points;
+        this.center = new TPoint(Math.toIntExact(Math.round(sumX / 4.0)), Math.toIntExact(Math.round(sumY / 4.0))); 
+        // this.width + this.height
+        int maxX = this.body[0].x, minX = this.body[0].x, maxY = this.body[0].y, minY = this.body[0].y;
+        for (int i = 0; i < this.body.length; i++) {
+            maxX = Math.max(this.body[i].x, maxX);
+            minX = Math.min(this.body[i].x, minX);
+            maxY = Math.max(this.body[i].y, maxY);
+            minY = Math.min(this.body[i].y, minY);
+        }
+        this.width = maxX - minX + 1;
+        this.height = maxY - minY + 1;
+        // this.skirt
+        this.skirt = new int[this.width];
+        for (int i = 0; i < this.body.length; i++) {
+            if (i == 0) {
+                this.skirt[this.body[i].x] = this.body[i].y;
+            } else {
+                this.skirt[this.body[i].x] = Math.min(this.body[i].y, this.skirt[this.body[i].x]);
+            }
+        }
     }
 
 
@@ -69,6 +99,10 @@ public class Piece {
         return body;
     }
 
+    public Piece getNext() {
+        return this.next;
+    }
+
     /**
      * Returns a pointer to the piece's skirt. For each x value
      * across the piece, the skirt gives the lowest y value in the body.
@@ -85,8 +119,17 @@ public class Piece {
      * rotated from the receiver.
      */
     public Piece computeNextRotation() {
-        // YOUR CODE HERE
-        return null; // YOUR CODE HERE
+        if (Math.max(this.width, this.height) == 2) {
+            this.next = new Piece(this.body);
+        } else {
+            TPoint[] normalized = new TPoint[this.body.length];
+            for (int i = 0; i < this.body.length; i++) {
+                normalized[i] = new TPoint(this.body[i].x, this.body[i].y);
+                normalized[i].rotate(this.center);
+            }
+            this.next = new Piece(normalized);
+        }
+        return this.next; // YOUR CODE HERE
     }
 
     /**
@@ -96,9 +139,50 @@ public class Piece {
      * just returns null.
      */
     public Piece fastRotation() {
-        return next;
+        if (this.pieces == null) {
+            if (Math.max(this.width, this.height) == 2) {
+                this.pieces = new Piece[1];
+                this.pieces[0] = new Piece(this.body);
+                this.next = new Piece(this.body);
+                this.next.setPieces(this.pieces);
+            } else {
+                int lengthOfArr = 5 - Math.toIntExact(Math.abs(this.width - this.height));
+                TPoint ohoh = new TPoint(0, 0);
+                this.pieces = new Piece[lengthOfArr];
+                TPoint[] normalized = new TPoint[this.body.length];
+                for (int i = 0; i < this.body.length; i++) {
+                    normalized[i] = new TPoint(this.body[i].x - this.center.x, this.body[i].y - this.center.y);
+                    normalized[i].rotate(ohoh);
+                }
+                System.out.println("a");
+                for (int i = 0; i < normalized.length; i++) {
+                    System.out.println(normalized[i].x + " " + normalized[i].y);
+                }
+                this.pieces[0] = new Piece(normalized);
+                for (int j = 1; j < lengthOfArr; j++) {
+                    Piece currentPiece = this.pieces[j - 1];
+                    normalized = new TPoint[currentPiece.getBody().length];
+                    for (int i = 0; i < currentPiece.getBody().length; i++) {
+                        normalized[i] = new TPoint(currentPiece.getBody()[i].x, currentPiece.getBody()[i].y);
+                        normalized[i].rotate(ohoh);
+                    }
+                    this.pieces[j] = new Piece(normalized);
+                } 
+
+                // this.next
+                normalized = new TPoint[this.pieces[1].getBody().length];
+                for (int i = 0; i < this.pieces[1].getBody().length; i++) {
+                    normalized[i] = new TPoint(this.pieces[1].getBody()[i].x + this.center.x, this.pieces[1].getBody()[i].y + this.center.y);
+                }
+                this.next = new Piece(normalized);
+            }
+        }
+        return this.next;
     }
 
+    public void setPieces(Piece[] rotations) {
+        this.pieces = rotations;
+    }
 
     /**
      * Returns true if two pieces are the same --
@@ -210,6 +294,4 @@ public class Piece {
         TPoint[] array = points.toArray(new TPoint[0]);
         return array;
     }
-
-
 }

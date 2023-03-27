@@ -25,6 +25,10 @@ public class TextGraphics {
         this.screen[x - 1][y - 1] = c;
     }
 
+    public void drawLine(char c, int x1, int y1, int x2, int y2) {
+
+    }
+
     public void fillRectPoint(char c, int x, int y, int w, int h) {
         for (int i = x - 1; i < x + w; i++) {
             for (int j = y - 1; j < y + h; j++){

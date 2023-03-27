@@ -677,13 +677,24 @@ public class JTetris extends JComponent {
         // Do this incantation at the start of main() to tell Swing
         // to use the GUI LookAndFeel of the native platform. It's ok
         // to ignore the exception.
-        try {
+
+        /*try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
         }
 
         JTetris tetris = new JTetris(16);
         JFrame frame = JTetris.createFrame(tetris);
-        frame.setVisible(true);
+        frame.setVisible(true);*/
+
+        Piece c = new Piece("0 1 0 2 1 0 1 1");
+        for (int i = 0; i < c.getBody().length; i++) {
+            System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);
+        }
+        c.fastRotation();
+        System.out.println("------");
+        for (int i = 0; i < c.getNext().getBody().length; i++) {
+            System.out.println(c.getNext().getBody()[i].x + " " + c.getNext().getBody()[i].y);
+        }
     }
 }
