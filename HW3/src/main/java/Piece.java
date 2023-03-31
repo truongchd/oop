@@ -58,12 +58,16 @@ public class Piece {
         this.height = maxY - minY + 1;
         // this.skirt
         this.skirt = new int[this.width];
+        //System.out.println("this.skirt length = " + this.skirt.length);
+        //System.out.println("this.width = " + this.width);
+        //System.out.println("this.height = " + this.height);
+        //System.out.println("minX = " + minX);
+        //System.out.println("minX = " + minY);
+        for (int i = 0; i < this.skirt.length; i++) {
+            this.skirt[i] = 10000;
+        }
         for (int i = 0; i < this.body.length; i++) {
-            if (i == 0) {
-                this.skirt[this.body[i].x] = this.body[i].y;
-            } else {
-                this.skirt[this.body[i].x] = Math.min(this.body[i].y, this.skirt[this.body[i].x]);
-            }
+            this.skirt[this.body[i].x - minX] = Math.min(this.body[i].y - minY, this.skirt[this.body[i].x - minX]);
         }
     }
 
@@ -81,14 +85,14 @@ public class Piece {
      * Returns the width of the piece measured in blocks.
      */
     public int getWidth() {
-        return width;
+        return this.width;
     }
 
     /**
      * Returns the height of the piece measured in blocks.
      */
     public int getHeight() {
-        return height;
+        return this.height;
     }
 
     /**
@@ -114,7 +118,18 @@ public class Piece {
      * The caller should not modify this array.
      */
     public int[] getSkirt() {
-        return skirt;
+        return this.skirt;
+    }
+
+    public Piece[] getRotations() {
+        return this.pieces;
+    }
+
+    public void setPieces(Piece[] allPieces, int len) {
+        this.pieces = new Piece[len];
+        for (int i = 0; i < len; i++) {
+            this.pieces[i] = allPieces[i];
+        }
     }
 
 
@@ -131,6 +146,9 @@ public class Piece {
                 normalized[i] = new TPoint(this.body[i].x, this.body[i].y);
                 normalized[i].rotate(this.center);
             }
+            //for (int i = 0; i < normalized.length; i++) {
+            //    System.out.println(normalized[i].x + " " + normalized[i].y);
+            //}
             this.next = new Piece(normalized);
         }
         return this.next; // YOUR CODE HERE
@@ -143,43 +161,20 @@ public class Piece {
      * just returns null.
      */
     public Piece fastRotation() {
-        if (this.pieces == null) {
-            if (Math.max(this.width, this.height) == 2) {
-                this.pieces = new Piece[1];
-                this.pieces[0] = new Piece(this.body);
-                this.next = new Piece(this.body);
-                this.next.setPieces(this.pieces);
-            } else {
-                int lengthOfArr = 5 - Math.toIntExact(Math.abs(this.width - this.height));
-                TPoint ohoh = new TPoint(0, 0);
-                this.pieces = new Piece[lengthOfArr];
-                this.pieces[0] = this;
-                TPoint[] normalized;
-                for (int j = 1; j < lengthOfArr; j++) {
-                    Piece currentPiece = this.pieces[j - 1];
-                    normalized = new TPoint[currentPiece.getBody().length];
-                    for (int i = 0; i < currentPiece.getBody().length; i++) {
-                        normalized[i] = new TPoint(currentPiece.getBody()[i].x, currentPiece.getBody()[i].y);
-                        normalized[i].rotate(currentPiece.getCenter());
-                    }
-                    this.pieces[j] = new Piece(normalized);
-                } 
-
-                // this.next
-                this.next = this.pieces[1];
-                this.next.setPieces(this.pieces);
+        if (this.pieces.length < 1) {
+            return null;
+        } else {
+            int index = 0;
+            for (int i = 0; i < this.pieces.length; i++) {
+                if (this.equals(this.pieces[i])) {
+                    index = i + 1;
+                }
+            }
+            if (index == 0) return null;
+            else {
+                return this.pieces[index % this.pieces.length];
             }
         }
-        return this.next;
-    }
-
-    public void setPieces(Piece[] rotations) {
-        this.pieces = new Piece[rotations.length];
-        for (int i = 0; i < rotations.length - 1; i++) {
-            this.pieces[i] = rotations[i + 1];
-        }
-        this.pieces[rotations.length - 1] = rotations[0];
-        this.next = this.pieces[1];
     }
 
     /**
@@ -199,8 +194,30 @@ public class Piece {
         if (!(obj instanceof Piece)) return false;
         Piece other = (Piece) obj;
 
-        // YOUR CODE HERE
-        return true;
+        TPoint[] other_body = other.getBody();
+        int[] checked = new int[this.body.length];
+        int[] checkedOther = new int[other_body.length];
+
+        for (int i = 0; i < this.body.length; i++) {
+            if (checked[i] > 0) continue;
+            for (int j = 0; j < other_body.length; j++) {
+                if (checkedOther[j] > 0) continue;
+                if (this.body[i].x == other_body[i].x && this.body[i].y == other_body[i].y) {
+                    checked[i] = j + 1;
+                    checkedOther[j] = i + 1;
+                    break;
+                }
+            }
+        }
+        int sumCheck = 0, sumOther = 0;
+        for (int i = 0; i < checked.length; i++) {
+            if (checked[i] > 0) sumCheck += checked[i];
+        }
+        for (int i = 0; i < checkedOther.length; i++) {
+            if (checkedOther[i] > 0) sumOther += checkedOther[i];
+        }
+        if (sumCheck == sumOther && sumCheck == 10) return true;
+        return false;
     }
 
 
@@ -264,8 +281,26 @@ public class Piece {
 	 to the first piece.
 	*/
     private static Piece makeFastRotations(Piece root) {
-        // YOUR CODE HERE
-        return null; // YOUR CODE HERE
+        if (root.getRotations() == null) {
+            Piece[] allRotations = new Piece[4];
+            int len = 1;
+            allRotations[0] = root;
+            Piece current;
+            while (true) {
+                current = allRotations[len - 1].computeNextRotation();
+                allRotations[len] = current;
+                len++;
+                System.out.println("------");
+                for (int i = 0; i < allRotations[len].getBody().length; i++) {
+                    System.out.println(allRotations[len].getBody()[i].x + " " + allRotations[len].getBody()[i].y);
+                }
+                if (root.equals(current)) {
+                    break;
+                }
+            }
+            root.setPieces(allRotations, len);
+        }
+        return root.fastRotation();
     }
 
 

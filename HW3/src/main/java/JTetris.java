@@ -687,14 +687,40 @@ public class JTetris extends JComponent {
         JFrame frame = JTetris.createFrame(tetris);
         frame.setVisible(true);*/
 
-        Piece c = new Piece("0 1 0 2 1 0 1 1");
+        Piece c = new Piece(Piece.PYRAMID_STR);
+        Piece[] pieces = Piece.getPieces();
+
+        /* 
         for (int i = 0; i < c.getBody().length; i++) {
             System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);
         }
-        c.fastRotation();
-        System.out.println("------");
-        for (int i = 0; i < c.getNext().getBody().length; i++) {
-            System.out.println(c.getNext().getBody()[i].x + " " + c.getNext().getBody()[i].y);
+        System.out.println("this.skirt = ");
+        for (int i = 0; i < c.getSkirt().length; i++) {
+            System.out.println(c.getSkirt()[i]);
         }
+        System.out.println("------");
+        Piece c1 = c.computeNextRotation();
+        Piece c2 = c1.computeNextRotation();
+        Piece c3 = c2.computeNextRotation();
+        Piece c4 = c3.computeNextRotation();
+        for (int i = 0; i < c.getBody().length; i++) {
+            System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);
+        }
+        System.out.println("this.width = " + c.getWidth());
+        System.out.println("this.height = " + c.getHeight());
+        System.out.print("this.skirt: length = " + c.getSkirt().length + ", ");
+        for (int i = 0; i < c.getSkirt().length; i++) {
+            System.out.print(c.getSkirt()[i] + " ");
+        }
+        System.out.println("\n------");
+        for (int i = 0; i < c4.getBody().length; i++) {
+            System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);
+        }
+        System.out.println("this.width = " + c4.getWidth());
+        System.out.println("this.height = " + c4.getHeight());
+        System.out.print("this.skirt: length = " + c4.getSkirt().length + ", ");
+        for (int i = 0; i < c4.getSkirt().length; i++) {
+            System.out.print(c4.getSkirt()[i] + " ");
+        }*/
     }
 }

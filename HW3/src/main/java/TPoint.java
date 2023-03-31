@@ -27,11 +27,11 @@ public class TPoint {
 
     // rotate 
     public void rotate(TPoint center) {
-        int[][] rotate = {{0, 1}, {-1, 0}};
+        int[][] rotate = {{0, -1}, {1, 0}};
         int newX = (this.x - center.x) * rotate[0][0] + (this.y - center.y) * rotate[0][1];
         int newY = (this.x - center.x) * rotate[1][0] + (this.y - center.y) * rotate[1][1];
         this.x = newX + center.x;
-        this.y = newY + center.x;
+        this.y = newY + center.y;
     }
 
     // Standard equals() override
