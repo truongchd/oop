@@ -687,9 +687,24 @@ public class JTetris extends JComponent {
         JFrame frame = JTetris.createFrame(tetris);
         frame.setVisible(true);*/
 
-        Piece c = new Piece(Piece.PYRAMID_STR);
-        Piece[] pieces = Piece.getPieces();
+        Piece PYRAMID_STR = new Piece(Piece.PYRAMID_STR);
+        String[] strs = new String[]{ "STICK_STR", "L1_STR", "L2_STR","S1_STR", "S2_STR", "SQUARE_STR", "PYRAMID_STR"} ;
+        Piece[] list_of = Piece.getPieces();
+        Piece pyr1 = PYRAMID_STR.computeNextRotation();
 
+        for (int j = 0; j < pyr1.getBody().length; j++) {
+            System.out.println(pyr1.getBody()[j].x + " " + pyr1.getBody()[j].y);
+        }
+
+        //for (int i = 0; i < list_of.length; i++) {
+            TPoint[] body = list_of[6].getBody();
+            System.out.println(strs[6]);
+            for (int j = 0; j < body.length; j++) {
+                System.out.println(body[j].x + " " + body[j].y);
+            }
+            System.out.println(pyr1.equals(list_of[6]));
+            //System.out.println("-------" + list_of.length);
+        //}
         /* 
         for (int i = 0; i < c.getBody().length; i++) {
             System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);

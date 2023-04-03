@@ -138,18 +138,17 @@ public class Piece {
      * rotated from the receiver.
      */
     public Piece computeNextRotation() {
-        if (Math.max(this.width, this.height) == 2) {
-            this.next = new Piece(this.body);
-        } else {
-            TPoint[] normalized = new TPoint[this.body.length];
-            for (int i = 0; i < this.body.length; i++) {
-                normalized[i] = new TPoint(this.body[i].x, this.body[i].y);
-                normalized[i].rotate(this.center);
+        if (this.next == null) {
+            if (Math.max(this.width, this.height) == 2) {
+                this.next = new Piece(this.body);
+            } else {
+                TPoint[] normalized = new TPoint[this.body.length];
+                for (int i = 0; i < this.body.length; i++) {
+                    normalized[i] = new TPoint(this.body[i].x, this.body[i].y);
+                    normalized[i].rotate(this.center);
+                }
+                this.next = new Piece(normalized);
             }
-            //for (int i = 0; i < normalized.length; i++) {
-            //    System.out.println(normalized[i].x + " " + normalized[i].y);
-            //}
-            this.next = new Piece(normalized);
         }
         return this.next; // YOUR CODE HERE
     }
@@ -161,20 +160,7 @@ public class Piece {
      * just returns null.
      */
     public Piece fastRotation() {
-        if (this.pieces.length < 1) {
-            return null;
-        } else {
-            int index = 0;
-            for (int i = 0; i < this.pieces.length; i++) {
-                if (this.equals(this.pieces[i])) {
-                    index = i + 1;
-                }
-            }
-            if (index == 0) return null;
-            else {
-                return this.pieces[index % this.pieces.length];
-            }
-        }
+        return this.next;
     }
 
     /**
@@ -195,6 +181,7 @@ public class Piece {
         Piece other = (Piece) obj;
 
         TPoint[] other_body = other.getBody();
+        TPoint other_center = other.getCenter(), this_center = this.getCenter();
         int[] checked = new int[this.body.length];
         int[] checkedOther = new int[other_body.length];
 
@@ -202,7 +189,7 @@ public class Piece {
             if (checked[i] > 0) continue;
             for (int j = 0; j < other_body.length; j++) {
                 if (checkedOther[j] > 0) continue;
-                if (this.body[i].x == other_body[i].x && this.body[i].y == other_body[i].y) {
+                if (this.body[i].x - this_center.x == other_body[i].x - other_center.x && this.body[i].y - this_center.y == other_body[i].y - other_center.y) {
                     checked[i] = j + 1;
                     checkedOther[j] = i + 1;
                     break;
@@ -281,26 +268,11 @@ public class Piece {
 	 to the first piece.
 	*/
     private static Piece makeFastRotations(Piece root) {
-        if (root.getRotations() == null) {
-            Piece[] allRotations = new Piece[4];
-            int len = 1;
-            allRotations[0] = root;
-            Piece current;
-            while (true) {
-                current = allRotations[len - 1].computeNextRotation();
-                allRotations[len] = current;
-                len++;
-                System.out.println("------");
-                for (int i = 0; i < allRotations[len].getBody().length; i++) {
-                    System.out.println(allRotations[len].getBody()[i].x + " " + allRotations[len].getBody()[i].y);
-                }
-                if (root.equals(current)) {
-                    break;
-                }
-            }
-            root.setPieces(allRotations, len);
+        Piece tmp = root.computeNextRotation();
+        while (!root.equals(tmp)) {
+            tmp = tmp.computeNextRotation();
         }
-        return root.fastRotation();
+        return root;
     }
 
 
