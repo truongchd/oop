@@ -12,6 +12,9 @@ public class Board {
     // Some ivars are stubbed out for you:
     private int width;
     private int height;
+    private int[] cols;
+    private int[] rows;
+    private int maxHeight;
     private boolean[][] grid;
     private boolean DEBUG = true;
     boolean committed;
@@ -26,10 +29,13 @@ public class Board {
     public Board(int width, int height) {
         this.width = width;
         this.height = height;
-        grid = new boolean[width][height];
+        this.grid = new boolean[width][height];
         committed = true;
 
         // YOUR CODE HERE
+        this.rows = new int[height];
+        this.cols = new int[width];
+        this.maxHeight = 0;
     }
 
 
@@ -54,7 +60,8 @@ public class Board {
      * For an empty board this is 0.
      */
     public int getMaxHeight() {
-        return 0; // YOUR CODE HERE
+        
+        return this.maxHeight; // YOUR CODE HERE
     }
 
 
@@ -74,7 +81,7 @@ public class Board {
      * if it were dropped straight down at that x.
      *
      * <p>
-     * Implementation: use the skirt and the col heights
+     * Implementation: use the skirt and the col cols
      * to compute this fast -- O(skirt length).
      */
     public int dropHeight(Piece piece, int x) {
@@ -88,7 +95,7 @@ public class Board {
      * The height is 0 if the column contains no blocks.
      */
     public int getColumnHeight(int x) {
-        return 0; // YOUR CODE HERE
+        return this.cols[x]; // YOUR CODE HERE
     }
 
 
@@ -97,7 +104,7 @@ public class Board {
      * the given row.
      */
     public int getRowWidth(int y) {
-        return 0; // YOUR CODE HERE
+        return this.rows[y]; // YOUR CODE HERE
     }
 
 
@@ -147,12 +154,38 @@ public class Board {
      * things above down. Returns the number of rows cleared.
      */
     public int clearRows() {
-        int rowsCleared = 0;
-        // YOUR CODE HERE
+        int rowsCleared = 0, i = 0;
+        boolean have;
+        while (i < this.maxHeight) {
+            have = false;
+            while (true) {
+                for(boolean b : grid[i]) {
+                    if (b) {
+                        have = true;
+                        break;
+                    }
+                }
+                if (have == true) {
+                    break;
+                }
+                rowsCleared++;
+                i++;
+            }
+            if (rowsCleared == 0) continue;
+            this.grid[i - rowsCleared] = this.grid[i];
+            this.rows[i - rowsCleared] = this.rows[i];
+            i++;
+        }
+        this.maxHeight -= rowsCleared;
+        for (int j = this.maxHeight - rowsCleared; j < this.maxHeight; j++ ) {
+            this.rows[j] = 0;
+        }
+        for (int j = 0; j < this.width; j++) {
+            this.cols[j] -= rowsCleared;
+        }
         sanityCheck();
         return rowsCleared;
     }
-
 
     /**
      * Reverts the board to its state before up to one place
@@ -194,5 +227,3 @@ public class Board {
         return (buff.toString());
     }
 }
-
-
