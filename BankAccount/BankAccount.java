@@ -1,23 +1,24 @@
-import java.util.List;
+import java.util.*;
 
-abstract public class BankAccount {       
+abstract public class BankAccount {
     protected double balance;
-    protected List<Double> transactions;
+    protected Vector<Double> transactions;
 
-    public BankAccount(double initialBalance) {
-        balance = initialBalance;
+    public BankAccount(double initial) {
+        try {
+            if (initial < 0) {
+                throw new Exception("Initial balance cannot be negative");
+            }
+            this.balance = initial;
+            this.transactions = new Vector<Double>();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    public boolean deposit(double amount) {
-        balance += amount;
-        transactions.add(amount);
-        return true;
-    }
+    abstract public String deposit(double amount);
 
-    public boolean withdraw(double amount) {
-        balance -= amount;
-        transactions.add(-amount);
-    };
+    abstract public String withdraw(double amount);
 
     abstract public void endMonth();
 }
