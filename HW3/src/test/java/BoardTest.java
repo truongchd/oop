@@ -55,4 +55,27 @@ public class BoardTest {
     // numbers that the board looks right after the operations.
 
 
+    public static void main(String[] arg){
+        // first test
+        BoardTest b1 = new BoardTest();
+        b1.setUp();
+        for(int i = 0; i < b1.b.getWidth(); i ++)
+            System.out.println("column " + i + ": " + b1.b.getColumnHeight(i));
+        for (int i = 0; i < b1.b.getHeight(); i++)
+            System.out.println("row " + i + ": " + b1.b.getRowWidth(i));
+        System.out.println(b1.b.getMaxHeight());
+        System.out.println(b1.b.toString());
+        // second test
+        b1.b.commit();
+        Piece s = new Piece(Piece.S1_STR);
+        Piece sRotated = s.computeNextRotation();
+        int result = b1.b.place(sRotated, 1, 1);
+        System.out.println(result);
+        for(int i = 0; i < b1.b.getWidth(); i ++)
+            System.out.println("column " + i + ": " + b1.b.getColumnHeight(i));
+        for (int i = 0; i < b1.b.getHeight(); i++)
+            System.out.println("row " + i + ": " + b1.b.getRowWidth(i));
+        System.out.println(b1.b.getMaxHeight());
+        System.out.println(b1.b.toString());
+    }
 }

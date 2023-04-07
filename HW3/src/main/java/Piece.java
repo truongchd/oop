@@ -56,13 +56,7 @@ public class Piece {
         }
         this.width = maxX - minX + 1;
         this.height = maxY - minY + 1;
-        // this.skirt
         this.skirt = new int[this.width];
-        //System.out.println("this.skirt length = " + this.skirt.length);
-        //System.out.println("this.width = " + this.width);
-        //System.out.println("this.height = " + this.height);
-        //System.out.println("minX = " + minX);
-        //System.out.println("minX = " + minY);
         for (int i = 0; i < this.skirt.length; i++) {
             this.skirt[i] = 10000;
         }
@@ -146,6 +140,18 @@ public class Piece {
                 for (int i = 0; i < this.body.length; i++) {
                     normalized[i] = new TPoint(this.body[i].x, this.body[i].y);
                     normalized[i].rotate(this.center);
+                }
+                int y_minus = 100;
+                int x_minus = 100;
+                for (int i = 0; i < normalized.length; i++) {
+                    y_minus = Math.min(normalized[i].y, y_minus);
+                    x_minus = Math.min(normalized[i].x, x_minus);
+                }
+                for (int i = 0; i < normalized.length; i++) {
+                    normalized[i].x -= x_minus;
+                }
+                for (int i = 0; i < normalized.length; i++) {
+                    normalized[i].y -= y_minus;
                 }
                 this.next = new Piece(normalized);
             }
