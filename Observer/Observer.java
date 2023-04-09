@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.util.*;
 import java.io.*;
 
-public class Observer implements ActionListener {
+public class Observer {
     private JButton button;
  
     public void go() {
@@ -21,10 +21,5 @@ public class Observer implements ActionListener {
     // override
     public void actionPerformed(ActionEvent actionEvent) {
         button.setText("I've been clicked!");
-    }
- 
-    public static void main(String[] args) {
-        Observer gui = new Observer();
-        gui.go();
     }
 }

@@ -678,15 +678,16 @@ public class JTetris extends JComponent {
         // to use the GUI LookAndFeel of the native platform. It's ok
         // to ignore the exception.
 
-        /*try {
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
         }
 
         JTetris tetris = new JTetris(16);
         JFrame frame = JTetris.createFrame(tetris);
-        frame.setVisible(true);*/
+        frame.setVisible(true);
 
+        /*
         Piece PYRAMID_STR = new Piece(Piece.PYRAMID_STR);
         String[] strs = new String[]{ "STICK_STR", "L1_STR", "L2_STR","S1_STR", "S2_STR", "SQUARE_STR", "PYRAMID_STR"} ;
         Piece[] list_of = Piece.getPieces();
@@ -705,7 +706,7 @@ public class JTetris extends JComponent {
             System.out.println(pyr1.equals(list_of[6]));
             //System.out.println("-------" + list_of.length);
         //}
-        /* 
+        
         for (int i = 0; i < c.getBody().length; i++) {
             System.out.println(c.getBody()[i].x + " " + c.getBody()[i].y);
         }

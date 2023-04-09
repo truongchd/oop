@@ -1,4 +1,4 @@
-import Expression;
+package Expression;
 
 public class Addition extends BinaryExpression {
     private Expression left;

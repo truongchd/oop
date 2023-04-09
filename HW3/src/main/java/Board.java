@@ -193,6 +193,8 @@ public class Board {
         // flag !committed problem
         if (!committed) throw new RuntimeException("place commit problem");
 
+        int result = PLACE_OK;
+
         // BAD/OUT BOUNDS
         TPoint[] piece_body = piece.getBody();
         for (int i = 0; i < piece_body.length; i++) {
@@ -205,7 +207,6 @@ public class Board {
         }
 
         // ROW_FILLED
-        boolean row_filled = false;
         committed = false; // change board
 
         for (int i = 0; i < piece_body.length; i++) {
@@ -213,20 +214,12 @@ public class Board {
             this.maxHeight = Math.max(this.maxHeight, piece_body[i].y + y + 1);
             this.heights[piece_body[i].x + x] = Math.max(this.heights[piece_body[i].x + x] , piece_body[i].y + y + 1);
             this.widths[piece_body[i].y + y]++; 
-        }
-
-        for (int i = 0; i < this.maxHeight; i++) {
-            row_filled = true;
-            for (int j = 0; j < this.width; j++) {
-                if (this.grid[i][j] == false) {
-                    row_filled = false;
-                    break;
-                }
+            if (this.widths[piece_body[i].y + y] == this.width) {
+                result = PLACE_ROW_FILLED;
             }
-            if (row_filled) return PLACE_ROW_FILLED;
         }
 
-        return PLACE_OK;
+        return result;
     }
 
 
