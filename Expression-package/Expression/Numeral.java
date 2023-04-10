@@ -5,7 +5,6 @@ public class Numeral extends Expression {
     private int value;
 
     public Numeral (int a) {
-        super(a);
         this.value = a;
     }
 
