@@ -1,4 +1,4 @@
 public interface BinaryExpression extends Expression {
-    abstract public Expression left();
-    abstract public Expression right();
+    public Expression left();
+    public Expression right();
 }
