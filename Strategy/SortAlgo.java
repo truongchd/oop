@@ -1,3 +1,3 @@
-abstract public class SortAlgo{
-    abstract public void sort (NumList numList);
+public interface SortAlgo{
+    public void sort (NumList numList);
 }
