@@ -1,42 +1,48 @@
 import java.util.*;
 
-import javax.management.RuntimeErrorException;
-
 public class Sudoku {
     private int[][] grid;
-    private Rows[][] regions;
-    private Rows[] rows;
-    private Rows[] cols;
+    private Square[][] squares;
+    private RowCol[] rows;
+    private RowCol[] cols;
     // next
-    private int[][] nextGrid;
+    private int[][] tmpGrid;
+    private Square[][] tmpSquares;
+    private RowCol[] tmpRows;
+    private RowCol[] tmpCols;
+    private boolean committed;
+    // original
+    private int[][] originalGrid;
 
     public Sudoku (int[][] grid) {
         // check if grid has size 9x9
 
         // initialize
         // this.grid
-        this.grid = new int[9][9];
+        this.grid = this.tmpGrid = this.originalGrid = new int[9][9];
         for (int i = 0; i < 9; i++) {
-            this.grid[i] = this.nextGrid[i] = Arrays.copyOfRange(grid[i], 0, 9); 
+            this.grid[i] = this.tmpGrid[i] = this.originalGrid[i] =  Arrays.copyOfRange(grid[i], 0, 9); 
         }
 
         // regions
-        this.regions = new Rows[3][3];
+        this.squares = this.tmpSquares = new Square[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                this.regions[i][j] = new Rows(this.grid, i, j);
+                this.squares[i][j] = this.tmpSquares[i][j] = new Square(this.grid, i, j);
             }
         }
 
-        this.rows = new Rows[9];
+        this.rows = this.tmpRows = new RowCol[9];
         for (int i = 0; i < 9; i++) {
-            this.rows[i] = new Rows(this.grid, i, "row");
+            this.rows[i] = this.tmpRows[i] = new RowCol(this.grid, i, "row");
         }
 
-        this.cols = new Rows[9];
+        this.cols = this.tmpCols = new RowCol[9];
         for (int i = 0; i < 9; i++) {
-            this.cols[i] = new Rows(this.grid, i, "col");
+            this.cols[i] = this.tmpCols[i] = new RowCol(this.grid, i, "col");
         }
+
+        this.committed = true;
     }
 
     public Sudoku (String gridString) {
@@ -47,42 +53,11 @@ public class Sudoku {
         this(parseStrings(gridStrings));
     }
 
-    public Sudoku (Sudoku prev) {
-        // grid
-        this.grid = new int[9][9];
-        for (int i = 0; i < 9; i++) {
-            this.grid[i] = Arrays.copyOfRange(prev.getGrid()[i], 0, 9);
-        }
-        
-        
-        // regions
-        this.regions = new Rows[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                
-            }
-        }
-
-        this.rows = new Rows[9];
-        for (int i = 0; i < 9; i++) {
-            this.rows[i] = new Rows(this.grid, i, "row");
-        }
-
-        this.cols = new Rows[9];
-        for (int i = 0; i < 9; i++) {
-            this.cols[i] = new Rows(this.grid, i, "col");
-        }
+    public Square getSquare(int row, int col) {
+        return this.squares[row][col];    
     }
 
-    public void modify (int row, int col, int new_val) {
-
-    }
-
-    public Rows getRegion(int row, int col) {
-        return regions[row][col];    
-    }
-
-    public Rows getRowCol(int rowCol, String state) {
+    public RowCol getRowCol(int rowCol, String state) {
         if (state == "row") return rows[rowCol];
         return cols[rowCol];    
     }
@@ -95,53 +70,22 @@ public class Sudoku {
         if (row < 0 || row >= 9 || col < 0 || col >= 9) return null;
         if (this.grid[row][col] != 0) return null;
         HashSet<Integer> res = new HashSet<>();
-        res.addAll(this.regions[row / 3][col / 3].getPossibleValues());
+        res.addAll(this.squares[row / 3][col / 3].getPossibleValues());
         res.retainAll(this.rows[row].getPossibleValues());
         res.retainAll(this.cols[col].getPossibleValues());
         return res;
     }
 
-    private static int BOARD_INSOLUBLE = 0; // board can't be solved
-    private static int BOARD_SQUARE_AVAILABLE = 1;
-    private static int BOARD_NO_SQUARE_AVAILABLE = 2; // board don't have square could be filled
-    private static int BOARD_SOLVED = 3;
-
-    public int findSquareOneAvailable () {
-        // check if board is unable to solve + board have any numbers can be filled immediately
-        HashSet<Integer> tmp = new HashSet<>();
-        int state_of_board = BOARD_NO_SQUARE_AVAILABLE;
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                if (this.grid[i][j] != 0) continue;
-                tmp.clear();
-                tmp.addAll(this.getPossibleValues(i, j));
-                if (tmp.size() == 0) {
-                    return BOARD_INSOLUBLE;
-                }
-                if (tmp.size() == 1) {
-                    for (int tmpInt: tmp) {
-                        this.nextGrid[i][j] = tmpInt;
-                    }
-                    state_of_board = BOARD_SQUARE_AVAILABLE;
-                }
-            }
-        }
-        return state_of_board;
+    public HashSet<Integer> getTmpPossibleValues (int row, int col) {
+        if (row < 0 || row >= 9 || col < 0 || col >= 9) return null;
+        if (this.grid[row][col] != 0) return null;
+        HashSet<Integer> res = new HashSet<>();
+        res.addAll(this.tmpSquares[row / 3][col / 3].getPossibleValues());
+        res.retainAll(this.tmpRows[row].getPossibleValues());
+        res.retainAll(this.tmpCols[col].getPossibleValues());
+        return res;
     }
 
-    public void AddFirstSquareRandom() {
-        // assume that this.getPossibleValues(i, j) >= 2 with all i, j
-        // add random value of one square
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                if (this.grid[i][j] != 0) continue;
-                for (int tmp: this.getPossibleValues(i, j)) {
-                    this.grid[i][j] = tmp;
-                    break;
-                }
-            }
-        }
-    }
 
     public boolean full() {
         for (int i = 0; i < 9; i++) {
@@ -152,21 +96,99 @@ public class Sudoku {
         return true;
     }
 
-    public int solve () {
-        // solve sudoku grid
-        int state_of_board = this.findSquareOneAvailable();
-        if (state_of_board == BOARD_INSOLUBLE) {
-            return BOARD_INSOLUBLE;
-        } 
-        if (this.full()) {
-            return BOARD_SOLVED;
-        }
-        if (state_of_board == BOARD_SQUARE_AVAILABLE) {
+    public boolean modify (int row, int col, int new_val) {
+        try {
+            if (this.tmpGrid[row][col] == new_val) {
+                throw new Exception("New value must be different from old value");
+            }
 
-        } else if (state_of_board == BOARD_NO_SQUARE_AVAILABLE) {
-            this.AddFirstSquareRandom();
-        } 
-        return BOARD_INSOLUBLE;
+            committed = false;
+            this.tmpGrid[row][col] = new_val;
+            if (!this.tmpSquares[row / 3][col / 3].modify((row % 3) * 3 + (col % 3), new_val)) {
+                if (row == 0 && col == 4) this.printGrid();
+                throw new Exception("Error modifying region of squares, index" + row + " " + col);
+            }
+
+            if (!this.tmpCols[col].modify(row, new_val)) {
+                throw new Exception("Error modifying column index" + col);
+            }
+
+            if (!this.tmpRows[row].modify(col, new_val)) {
+                throw new Exception("Error modifying row index" + row);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            this.undo();
+            return false;
+        }
+        return true;
+    }
+
+    // solve the problem
+
+    public boolean addAllSquares () {
+        // return whether the board can be solve, while also add values in the board
+        HashSet<Integer> tmpSet = new HashSet<>();
+        boolean modify = false;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (this.tmpGrid[i][j] != 0) continue;
+                tmpSet.addAll(this.getTmpPossibleValues(i, j));
+                modify = false;
+
+                if (tmpSet.size() == 0) {
+                    return false;
+                    // 
+                }
+
+                if (tmpSet.size() == 1) {
+                    this.modify(i, j, tmpSet.iterator().next());
+                    modify = true;
+                }
+
+                if (modify == true) {
+                    System.out.println(i + " " + j + " " + tmpSet);
+                }
+                tmpSet.clear();
+            }
+        }
+        this.printTmpGrid();
+
+        return true;
+    }
+
+    public boolean addRandom () {
+        boolean state = false;
+        committed = false;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (this.tmpGrid[i][j] != 0) continue;
+                HashSet<Integer> tmpSet = new HashSet<>();
+                tmpSet.addAll(this.getTmpPossibleValues(i, j));
+                for (int tmpNum: tmpSet) {
+                    this.modify(i, j, tmpNum);
+                    state = this.solve();
+                    if (state == true) {
+                        return state;
+                    }
+                }
+            }
+        }
+
+        return state;
+    }
+
+    public boolean solve () {
+        // solve sudoku grid
+        if (this.full()) {
+            this.commit();
+            return true;
+        }
+        boolean addSquares = this.addAllSquares();
+        if (!addSquares) return false;
+        boolean addRandom = this.addRandom();
+        return addRandom;
     }
 
     public String toString() {
@@ -180,6 +202,64 @@ public class Sudoku {
         return res;
     }
 
+    public void undo () {
+        if (committed == true) return;
+        // grid
+        this.tmpGrid = new int[9][9]; 
+        for (int i = 0; i < 9; i++) {
+            this.tmpGrid[i] = Arrays.copyOfRange(this.grid[i], 0, 9);
+        }
+
+        // regions
+        this.tmpSquares = new Square[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                this.tmpSquares[i][j] = new Square(this.grid, i, j);
+            }
+        }
+
+        this.tmpRows = new RowCol[9];
+        for (int i = 0; i < 9; i++) {
+            this.tmpRows[i] = new RowCol(this.grid, i, "row");
+        }
+
+        this.tmpCols = new RowCol[9];
+        for (int i = 0; i < 9; i++) {
+            this.tmpCols[i] = new RowCol(this.grid, i, "col");
+        }
+
+        this.committed = true;
+    }
+
+    public void commit () {
+        if (committed == true) return;
+        // grid
+        this.grid = new int[9][9]; 
+        for (int i = 0; i < 9; i++) {
+            this.grid[i] = Arrays.copyOfRange(this.tmpGrid[i], 0, 9);
+        }
+
+        // regions
+        this.squares = new Square[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                this.squares[i][j] = new Square(this.tmpGrid, i, j);
+            }
+        }
+
+        this.rows = new RowCol[9];
+        for (int i = 0; i < 9; i++) {
+            this.rows[i] = new RowCol(this.tmpGrid, i, "row");
+        }
+
+        this.cols = new RowCol[9];
+        for (int i = 0; i < 9; i++) {
+            this.tmpCols[i] = new RowCol(this.tmpGrid, i, "col");
+        }
+
+        this.committed = true;
+    }
+
     public void printGrid() {
         System.out.println("----------------");
         for (int i = 0; i < 9; i++) {
@@ -188,6 +268,19 @@ public class Sudoku {
             }  
             System.out.print("\n----------------\n");
         }
+        System.out.println("****************");
+    }
+
+
+    public void printTmpGrid() {
+        System.out.println("----------------");
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                System.out.print(this.tmpGrid[i][j] + "|");
+            }  
+            System.out.print("\n----------------\n");
+        }
+        System.out.println("****************");
     }
 
     private static int[][] parseString(String gridString) {
