@@ -93,7 +93,7 @@ public class Sudoku {
                 if (this.grid[i][j] == 0) return false;
             }
         }
-        this.printGrid();
+        //this.printGrid();
         return true;
     }
 
@@ -118,6 +118,7 @@ public class Sudoku {
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            //this.printGrid();
             return false;
         }
         return true;
@@ -139,7 +140,7 @@ public class Sudoku {
                 tmpSet.addAll(this.getPossibleValues(i, j));
                 //System.out.println("square " + i + " " + j + " " + tmpSet);
                 if (tmpSet.size() == 0) {
-                    System.out.println(i + " " + j) ;
+                    //System.out.println(i + " " + j) ;
                     return BOARD_INSOLUBLE;
                     // 
                 }
@@ -147,7 +148,7 @@ public class Sudoku {
                 if (tmpSet.size() == 1) {
                     if (!this.modify(i, j, tmpSet.iterator().next())) return BOARD_INSOLUBLE;
                     modify = BOARD_AVAILABLE;
-                    System.out.println(tmpSet + " " + i + " " + j) ;
+                    //System.out.println(tmpSet + " " + i + " " + j) ;
                 }
 
                 tmpSet.clear();
@@ -165,15 +166,19 @@ public class Sudoku {
                 if (this.grid[i][j] != 0) continue;
                 row = i;
                 col = j;
+                added = true;
                 break;
             }
             if (added) break;
         }
         HashSet<Integer> tmpSet = new HashSet<>();
         tmpSet.addAll(this.getPossibleValues(row, col));
+        //System.out.println(tmpSet);
         for (int tmpInt: tmpSet) {
             this.nextGrid[row][col] = tmpInt;
             Sudoku tmpSudoku = new Sudoku(this.nextGrid);
+            //System.out.println("Before modification");
+            //tmpSudoku.printGrid();
             if (tmpSudoku.solve()) {
                 this.next = tmpSudoku;
                 this.getSolution(tmpSudoku);
@@ -192,6 +197,8 @@ public class Sudoku {
         while (addOnes == BOARD_AVAILABLE) {
             addOnes = this.addAllSquares();
         }
+        //System.out.println("After add all");
+        //this.printGrid();
         if (addOnes == BOARD_INSOLUBLE) return false;
         if (this.full()) {
             return true;
