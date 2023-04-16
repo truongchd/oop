@@ -1,14 +1,12 @@
 import javax.swing.*;
 
 public class ActionButton extends JButton {
-    private int x, y;
     private boolean running;
     private static String[] stringTitle = {"Start", "Stop"};
     private Ball ball;
 
     public ActionButton () {
-        this.x = 200;
-        this.y = 100;
+        this.setBounds(0, 100, 100, 50);
         this.setText("Start");
         this.running = false;
         this.addActionListener(e -> this.changeState());
