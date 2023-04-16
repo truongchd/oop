@@ -1,12 +1,14 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
-
 public class Main {
-    public static void main(String[] args) {
-        BallFrame gui = new BallFrame();
-        gui.active();
+    public static void main (String[] args) {
+        BallFrame k = new BallFrame();
+        while (true) {
+            k.moveBall();
+            k.repaintBall();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

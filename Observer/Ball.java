@@ -1,57 +1,53 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
 
 public class Ball extends JPanel {
+    private int x, y;
+    private int dx, dy;
     private int size;
-    private Pair<Double> velocity;
-    private Pair<Double> position;
     private int bounces;
-    private Pair<Integer> screen_size;
+    private int screen_w, screen_h;
+    private static int height_minus = 30;
+    private Observer observer;
 
-    public Ball (double dx, double dy, double x, double y, int size, int width, int height) {
-        this.velocity = new Pair<Double>(dx, dy);
-        this.position = new Pair<Double>(x, y);
-        this.size = size;
-        this.screen_size = new Pair<Integer>(width, height);
+    public Ball (int screen_w, int screen_h) {
+        this.x = 150;
+        this.y = 150;
+        this.dx = 4;
+        this.dy = 3;
+        this.size = 15;
         this.bounces = 0;
+        this.screen_w = screen_w;
+        this.screen_h = screen_h;
+        this.observer = new Observer();
     }
 
     public void move() {
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
+        this.x += this.dx;
+        this.y += this.dy;
 
-        if (this.position.x < 0) {
-            this.velocity.x = -this.velocity.x;
-            this.position.x = 0;
+        if (this.x + this.size > this.screen_w || this.x < 0) {
+            if (this.x + this.size > this.screen_w) {
+                this.x = this.screen_w - this.size;
+            }
+            this.dx = -this.dx;
             this.bounces++;
-        } else if (this.position.x + this.size >= this.screen_size.x) {
-            this.velocity.x = -this.velocity.x;
-            this.position.x = this.screen.size.x - this.size;
-            this.bounces++;
+            this.observer.updateBounces(this.bounces);
         }
 
-        if (this.position.y < 0) {
-            this.velocity.y = -this.velocity.y;
-            this.position.y = 0;
+        if (this.y + this.size - height_minus > this.screen_h || this.y < 0) {
+            if (this.y + this.size > this.screen_h - height_minus) {
+                this.y = this.screen_h - height_minus - this.size;
+            }
+            this.dy = -this.dy;
             this.bounces++;
-        } else if (this.position.y + this.size >= this.screen_size.y) {
-            this.velocity.y = -this.velocity.y;
-            this.position.y = this.screen.size.y - this.size;
-            this.bounces++;
+            this.observer.updateBounces(this.bounces);
         }
     }
 
-    public int bounceCount() {
-        return this.bounces;
-    }
-
-    public void paintComponent(Graphics g) {
+    public void paintComponent (Graphics g) {
         super.paintComponent(g);
-
-        g.setColor(Color.BLUE);
-        g.fillOval(this.position.x, this.position.y, this.size, this.size);
+        g.setColor(Color.RED);
+        g.fillOval(this.x, this.y, this.size, this.size);
     }
 }

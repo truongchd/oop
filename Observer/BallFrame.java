@@ -1,27 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
 
-public class BallFrame {
+public class BallFrame extends JFrame {
     private JFrame ballFrame;
-    private JPanel ball;
+    private Ball ball;
 
-    public void initFrame (int width, int height) {
-        this.ballFrame = new JFrame();
-        this.ballFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.ballFrame.setSize(width, height);
+    public BallFrame() {
+        this.ballFrame = new JFrame("Ball Frame");
+        this.initBall();
+        this.initFrame();
+    }
+
+    public void initFrame () {
+        this.ballFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit out of application
+        this.ballFrame.setLocationRelativeTo(null);
+        this.ballFrame.setResizable(false); // prevent resizing
+        this.ballFrame.setSize(500, 500); // set x-dim, y-dim
+        this.ballFrame.setVisible(true); // set visibility 
     }
 
     public void initBall () {
-        this.ball = new Ball(1, 0, 100, 100, 15, 300, 300);
-        this.ballFrame.add(this.ball.ball);
+        this.ball = new Ball(500, 500);
+        this.ballFrame.add(ball, BorderLayout.CENTER);
     }
 
-    public void active() {
-        this.initFrame(300, 300);
-        this.initBall();
-        this.ballFrame.setVisible(true);
+    public void moveBall() {
+        this.ball.move();
+    }
+
+    public void repaintBall() {
+        this.ball.repaint();
     }
 }

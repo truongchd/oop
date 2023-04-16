@@ -1,25 +1,25 @@
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.io.*;
 
 public class Observer {
-    private JButton button;
- 
-    public void go() {
-        button = new JButton("click me");
-        button.addActionListener(this);
- 
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(button);
-        frame.setSize(300,300);
-        frame.setVisible(true);
+    private JFrame observer;
+    private int bounces;
+
+    public Observer() {
+        this.bounces = 0;
+        this.observer = new JFrame(Integer.toString(bounces));
+        this.initFrame();
     }
- 
-    // override
-    public void actionPerformed(ActionEvent actionEvent) {
-        button.setText("I've been clicked!");
+
+    public void initFrame () {
+        this.observer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit out of application
+        this.observer.setLocationRelativeTo(null);
+        this.observer.setResizable(false); // prevent resizing
+        this.observer.setSize(300, 100); // set x-dim, y-dim
+        this.observer.setVisible(true); // set visibility 
+    }
+
+    public void updateBounces(int bounces) {
+        this.bounces = bounces;
+        this.observer.setTitle(Integer.toString(bounces));
     }
 }
