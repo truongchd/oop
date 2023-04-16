@@ -1,6 +1,7 @@
 public class Main {
     public static void main (String[] args) {
-        BallFrame k = new BallFrame();
+        Observer observer = new Observer();
+        BallFrame k = new BallFrame(observer);
         while (true) {
             k.moveBall();
             k.repaintBall();

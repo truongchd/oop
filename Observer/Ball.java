@@ -9,8 +9,9 @@ public class Ball extends JPanel {
     private int screen_w, screen_h;
     private static int height_minus = 30;
     private Observer observer;
+    private boolean moving;
 
-    public Ball (int screen_w, int screen_h) {
+    public Ball (int screen_w, int screen_h, Observer observer) {
         this.x = 150;
         this.y = 150;
         this.dx = 4;
@@ -19,10 +20,13 @@ public class Ball extends JPanel {
         this.bounces = 0;
         this.screen_w = screen_w;
         this.screen_h = screen_h;
-        this.observer = new Observer();
+        this.observer = observer;
+        this.moving = false;
+        this.observer.updateBall(this);
     }
 
     public void move() {
+        if (!this.moving) return;
         this.x += this.dx;
         this.y += this.dy;
 
@@ -43,6 +47,10 @@ public class Ball extends JPanel {
             this.bounces++;
             this.observer.updateBounces(this.bounces);
         }
+    }
+
+    public void startStop() {
+        this.moving = !this.moving;
     }
 
     public void paintComponent (Graphics g) {

@@ -2,26 +2,25 @@ import javax.swing.*;
 import java.awt.*;
 
 public class BallFrame extends JFrame {
-    private JFrame ballFrame;
     private Ball ball;
 
-    public BallFrame() {
-        this.ballFrame = new JFrame("Ball Frame");
-        this.initBall();
+    public BallFrame(Observer observer) {
+        this.initBall(observer);
         this.initFrame();
     }
 
-    public void initFrame () {
-        this.ballFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit out of application
-        this.ballFrame.setLocationRelativeTo(null);
-        this.ballFrame.setResizable(false); // prevent resizing
-        this.ballFrame.setSize(500, 500); // set x-dim, y-dim
-        this.ballFrame.setVisible(true); // set visibility 
+    public void initBall (Observer observer) {
+        this.ball = new Ball(500, 500, observer);
+        this.add(this.ball, BorderLayout.CENTER);
     }
 
-    public void initBall () {
-        this.ball = new Ball(500, 500);
-        this.ballFrame.add(ball, BorderLayout.CENTER);
+    public void initFrame () {
+        this.setTitle("Ball Frame");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // exit out of application
+        this.setLocationRelativeTo(null);
+        this.setResizable(false); // prevent resizing
+        this.setSize(500, 500); // set x-dim, y-dim
+        this.setVisible(true); // set visibility 
     }
 
     public void moveBall() {
