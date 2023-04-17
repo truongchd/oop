@@ -5,10 +5,13 @@ public class Picture implements Graphic {
     private Dimension extent;
     private Point position;
     private Picture picture;
-    private String id;
     
+    public Picture(String fileName) {
+        // load information about that Picture fileName
+        this.fileName = fileName;
+    }
+
     public void draw(Point position) {
-        // NaN
         return;
     }
 
@@ -20,18 +23,15 @@ public class Picture implements Graphic {
         return this.position;
     }
 
-    public void handleMouse(Event mouseEvent) {
-        // NaN
+    public void handleMouse(AWTEvent mouseEvent) {
         return;
     }
 
     public void store() {
-        // NaN
         return;
     }
 
     public void load() {
-        // NaN
         return;
     }
 }

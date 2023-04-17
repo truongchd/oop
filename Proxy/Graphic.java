@@ -1,5 +1,3 @@
-import java.awt.Dimension;
-
 import java.awt.*;
 
 public interface Graphic {
