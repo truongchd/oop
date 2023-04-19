@@ -8,7 +8,7 @@ import java.util.*;
  "0.5 0.5  0.75 0.75  0.75 0.2"
 */ 
 public class Shape {
-    private List<Point> points = new ArrayList();
+    private List<Point> points = new ArrayList<>();
     private Point center;
 
     public Shape(String s) {
