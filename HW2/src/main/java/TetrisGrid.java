@@ -34,7 +34,7 @@ public class TetrisGrid {
 		int rows = this.grid.length, cols = this.grid[0].length;
 		if (col >= cols) return false;
 		for (int i = 0; i < rows; i++){
-			if (this.grid[i][col] == false) return false;
+			if (this.grid[i][cols] == false) return false;
 		}
 		return true;
 	}

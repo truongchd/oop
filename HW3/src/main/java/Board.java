@@ -211,14 +211,17 @@ public class Board {
 
         for (int i = 0; i < piece_body.length; i++) {
             this.grid[piece_body[i].x + x][piece_body[i].y + y] = true;
-            this.maxHeight = Math.max(this.maxHeight, piece_body[i].y + y + 1);
-            this.heights[piece_body[i].x + x] = Math.max(this.heights[piece_body[i].x + x] , piece_body[i].y + y + 1);
+            this.maxHeight = Math.max(this.maxHeight,piece_body[i].y + this.heights[piece_body[i].x + x] + 1);
+            this.heights[piece_body[i].x + x] = piece_body[i].y + this.heights[piece_body[i].x + x] + 1;
             this.widths[piece_body[i].y + y]++; 
             if (this.widths[piece_body[i].y + y] == this.width) {
                 result = PLACE_ROW_FILLED;
             }
         }
 
+        System.out.println("Bengals");
+        System.out.println(this.toString());
+        System.out.println(x + " " + y);
         return result;
     }
 
@@ -227,44 +230,41 @@ public class Board {
      * Deletes widths that are filled all the way across, moving
      * things above down. Returns the number of widths cleared.
      */
+    public void shiftRow(int col) {
+		int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return;
+        committed = false;
+		for (int i = col; i < cols - 1; i++) {
+			for (int j = 0; j < rows; j++) {
+				this.grid[j][i] = this.grid[j][i + 1];
+			}
+		}
+		for (int i = 0; i < rows; i++) {
+			this.grid[i][cols - 1] = false;
+		}
+
+	}
+
+    public boolean checkFull(int col) {
+        int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return false;
+		for (int i = 0; i < rows; i++){
+			if (this.grid[i][col] == false) return false;
+		}
+		return true;
+    }
+
     public int clearRows() {
-        int widthsCleared = 0, i = 0;
-        boolean have;
-        while (i < this.maxHeight) {
-            have = false;
-            while (true) {
-                for(boolean b : grid[i]) {
-                    if (b) {
-                        have = true;
-                        break;
-                    }
-                }
-                if (have == true) {
-                    break;
-                }
+        int widthsCleared = 0;
+        
+		int cols = this.grid[0].length;
+		for (int i = 0; i < cols; i++) {
+			if (checkFull(i) == true) {
+				shiftRow(i);
                 widthsCleared++;
-                i++;
-            }
-            if (widthsCleared == 0) continue;
-            this.grid[i - widthsCleared] = this.grid[i];
-            this.widths[i - widthsCleared] = this.widths[i];
-            i++;
-        }
-        for (int j = this.maxHeight - widthsCleared; j < this.maxHeight; j++ ) {
-            this.widths[j] = 0;
-            this.grid[j] = new boolean[this.width];
-        }
-        for (int j = 0; j < this.width; j++) {
-            this.heights[j] -= widthsCleared;
-        }
+			}
+		}
 
-        if (widthsCleared > 0) {
-            this.maxHeight_backup = this.maxHeight;
-            this.maxHeight -= widthsCleared;
-            committed = false;
-        }
-
-        sanityCheck();
         return widthsCleared;
     }
 
@@ -330,10 +330,11 @@ public class Board {
     public static void main(String[] arg){
         // first test
         Board b = new Board(3, 6);
+        
         Piece ptr = new Piece(Piece.PYRAMID_STR);
-        Piece ptr1 = ptr.computeNextRotation();
+        /* Piece ptr1 = ptr.computeNextRotation();
         Piece ptr2 = ptr1.computeNextRotation();
-        Piece ptr3 = ptr2.computeNextRotation();
+        Piece ptr3 = ptr2.computeNextRotation();*/
         System.out.println(b.place(ptr, 0, 0));
         for(int i = 0; i < b.getWidth(); i ++)
             System.out.println("column " + i + ": " + b.getColumnHeight(i));

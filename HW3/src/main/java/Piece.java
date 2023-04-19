@@ -116,13 +116,13 @@ public class Piece {
     }
 
     public Piece[] getRotations() {
-        return this.pieces;
+        return pieces;
     }
 
     public void setPieces(Piece[] allPieces, int len) {
-        this.pieces = new Piece[len];
+        pieces = new Piece[len];
         for (int i = 0; i < len; i++) {
-            this.pieces[i] = allPieces[i];
+            pieces[i] = allPieces[i];
         }
     }
 

@@ -4,8 +4,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import java.util.*;
-import java.awt.event.*;
-import javax.swing.event.*;
 
 import java.awt.Toolkit;
 
@@ -686,6 +684,15 @@ public class JTetris extends JComponent {
         JTetris tetris = new JTetris(16);
         JFrame frame = JTetris.createFrame(tetris);
         frame.setVisible(true);
+
+        /*String toString = tetris.board.toString();
+
+        while(true) {
+            if (toString != tetris.board.toString()) {
+                toString = tetris.board.toString();
+                System.out.println(toString); 
+            }
+        } */
 
         /*
         Piece PYRAMID_STR = new Piece(Piece.PYRAMID_STR);
