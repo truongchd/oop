@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 // Board.java
 
 /**
@@ -8,23 +10,22 @@
  * Does not do any drawing or have any idea of pixels. Instead,
  * just represents the abstract 2-d board.
  */
-import java.util.*;
-
 public class Board {
     // Some ivars are stubbed out for you:
     private int width;
     private int height;
-    private int[] heights;
-    private int[] widths;
-    private int maxHeight;
     private boolean[][] grid;
-    private int[] heights_backup;
-    private int[] widths_backup;
-    private int maxHeight_backup;
-    private boolean[][] grid_backup;
     private boolean DEBUG = true;
-    boolean committed;
+    private int[] widths;
+    private int[] heights;
+    private int maxHeight;
 
+    // backup stuffs
+    boolean committed;
+    private int[] widths_backup;
+    private int[] heights_backup;
+    private boolean[][] grid_backup;
+    private int maxHeight_backup;
 
     // Here a few trivial methods are provided:
 
@@ -36,16 +37,19 @@ public class Board {
         this.width = width;
         this.height = height;
         this.grid = new boolean[width][height];
-        committed = true;
-
-        // YOUR CODE HERE
         this.widths = new int[height];
         this.heights = new int[width];
-        this.maxHeight = 0;
+
+        // backup
         this.widths_backup = new int[height];
         this.heights_backup = new int[width];
-        this.maxHeight_backup = 0;
         this.grid_backup = new boolean[width][height];
+        for(int i = 0; i < this.width; i ++){
+            this.grid_backup[i] = null;
+        }
+        this.maxHeight_backup = -1;
+        this.committed = true;
+        // YOUR CODE HERE
     }
 
 
@@ -53,7 +57,7 @@ public class Board {
      * Returns the width of the board in blocks.
      */
     public int getWidth() {
-        return width;
+        return this.width;
     }
 
 
@@ -61,7 +65,7 @@ public class Board {
      * Returns the height of the board in blocks.
      */
     public int getHeight() {
-        return height;
+        return this.height;
     }
 
 
@@ -70,14 +74,13 @@ public class Board {
      * For an empty board this is 0.
      */
     public int getMaxHeight() {
-        
-        return this.maxHeight; // YOUR CODE HERE
+        return this.maxHeight;
     }
 
 
     /**
-     * Checks the board for internal consistency -- used
-     * for debugging.
+         * Checks the board for internal consistency -- used
+         * for debugging.
      */
     public void sanityCheck() {
         if (DEBUG) {
@@ -126,11 +129,10 @@ public class Board {
      */
     public int dropHeight(Piece piece, int x) {
         int[] skirt = piece.getSkirt();
-        int pos = 0;
-        for (int i = 0; i < skirt.length; i++) {
-            pos = Math.max(pos, this.heights[x + i] - skirt[i]);
-        }
-        return pos; // YOUR CODE HERE
+        int ans = 0;
+        for(int i = 0; i < skirt.length; i ++)
+            ans = Math.max(ans, this.heights[x+i]-skirt[i]);
+        return ans; // YOUR CODE HERE
     }
 
 
@@ -149,7 +151,7 @@ public class Board {
      * the given row.
      */
     public int getRowWidth(int y) {
-        return this.widths[y]; // YOUR CODE HERE
+        return this.widths[y];
     }
 
 
@@ -159,14 +161,9 @@ public class Board {
      * always return true.
      */
     public boolean getGrid(int x, int y) {
-        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-            return true;
-            // out of bounds
-        } else if (this.grid[x][y]) {
-            return true;
-            // grid filled
-        }
-        return false; // YOUR CODE HERE
+        if(Math.min(x, y) >= 0 && x < this.width && y < this.height && !this.grid[x][y])
+            return false;
+        return true; // YOUR CODE HERE
     }
 
 
@@ -176,7 +173,7 @@ public class Board {
     public static final int PLACE_BAD = 3;
 
     /**
-     * Attempts to add the body of a piece to the board.
+     * Attempts to add the piece_body of a piece to the board.
      * Copies the piece blocks into the board grid.
      * Returns PLACE_OK for a regular placement, or PLACE_ROW_FILLED
      * for a regular placement that causes at least one row to be filled.
@@ -192,140 +189,156 @@ public class Board {
     public int place(Piece piece, int x, int y) {
         // flag !committed problem
         if (!committed) throw new RuntimeException("place commit problem");
-
+        
         int result = PLACE_OK;
-
-        // BAD/OUT BOUNDS
         TPoint[] piece_body = piece.getBody();
-        for (int i = 0; i < piece_body.length; i++) {
-            if (piece_body[i].x + x < 0 || piece_body[i].y + y < 0 || piece_body[i].x + x >= this.width || piece_body[i].y + y >= this.height) {
+        int put_x, put_y;
+        for(int i = 0; i < piece_body.length; i ++){
+            put_x = x + piece_body[i].x;
+            put_y = y + piece_body[i].y;
+            if (put_x < 0 || put_x >= this.width || put_y < 0 || put_y >= this.height) {
                 return PLACE_OUT_BOUNDS;
             }
-            if (this.grid[piece_body[i].x + x][piece_body[i].y + y] == true) {
+            if (this.grid[put_x][put_y]) {
                 return PLACE_BAD;
             }
         }
 
-        // ROW_FILLED
-        committed = false; // change board
-        int dx, dy;
-
+        this.committed = false;
         for (int i = 0; i < piece_body.length; i++) {
-            dx = piece_body[i].x + x;
-            dy = piece_body[i].y + y;
+            put_x = piece_body[i].x + x;
+            put_y = piece_body[i].y + y;
 
-            // grid
-            this.grid[dx][dy] = true;            
-            if(this.grid_backup[dx] == null){
-                this.grid_backup[dx] = Arrays.copyOfRange(this.grid[dx], 0, this.grid[dx].length);
-            }
+            // height + widths
+            this.heights[put_x] = Math.max(this.heights[put_x], put_y + 1);
+            this.widths[put_y] += 1; 
 
-            // height + maxHeight
-            this.heights[dx] = Math.max(this.heights[dx], dy + 1);
-            if(this.heights[dx] > this.maxHeight){
+            // maxHeight + backup
+            if (this.heights[put_x] > this.maxHeight) {
                 if(this.maxHeight_backup == -1){
                    this.maxHeight_backup = this.maxHeight; 
                 }
-                this.maxHeight = this.heights[dx];
+                this.maxHeight = this.heights[put_x];
             }
 
-            // width + fill row
-            this.widths[dy]++; 
-            if (this.widths[piece_body[i].y + y] == this.width) {
+            // grid + backup
+            if (this.grid_backup[put_x] == null) {
+                this.grid_backup[put_x] = Arrays.copyOfRange(this.grid[put_x], 0, this.grid[put_x].length);
+            }
+            this.grid[put_x][put_y] = true;
+
+            // check row filled
+            if (this.getRowWidth(put_y) == this.width) {
                 result = PLACE_ROW_FILLED;
             }
         }
 
-        System.out.println("Bengals");
-        System.out.println(this.toString());
-        System.out.println(x + " " + y);
-
-        sanityCheck();
         return result;
     }
 
-
     /**
-     * Deletes widths that are filled all the way across, moving
-     * things above down. Returns the number of widths cleared.
+     * Deletes rows that are filled all the way across, moving
+     * things above down. Returns the number of rows cleared.
      */
-    public int clearRows() {
+	public void shiftRow(int col) {
+		int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols || col < 0) return; 
+        // shift row i + 1 to row i 
+		for (int i = col; i < cols - 1; i++) {
+			for (int j = 0; j < rows; j++) {
+				this.grid[j][i] = this.grid[j][i + 1];
+			}
+            this.widths[i] = this.widths[i + 1];
+		}
+
+        // false top row 
+		for (int i = 0; i < rows; i++) {
+			this.grid[i][cols - 1] = false;
+		}
+        this.widths[cols - 1] = 0;
+	}
+	
+	public boolean checkFull(int col){
+		int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return false;
+		for (int i = 0; i < rows; i++){
+			if (this.grid[i][col] == false) return false;
+		}
+		return true;
+	}
+
+	public int clearRows() {
         int rowsCleared = 0;
-        int lst = 0;
-        for(int i = 0; i < this.width; i ++){
-            this.heights[i] = 0;
-        }
-        for(int j = 0; j < this.maxHeight; j ++){
-            boolean fill = (this.widths[j] == 0 || this.widths[j] == this.width);
-            if(!fill){
-                this.widths[lst] = this.widths[j];
-                for(int i = 0; i < this.width; i ++){                 
-                    this.grid[i][lst] = this.grid[i][j];
-                    if(this.grid[i][lst]){
-                        this.heights[i] = lst+1;
+		int cols = this.grid[0].length;
+		for (int i = 0; i < cols; i++) {
+			if (checkFull(i) == true) {
+                rowsCleared++;
+                if (rowsCleared == 1) {
+                    // backup before change
+                    for (int j = 0; j < this.width; i++) {
+                        if (this.grid_backup[j] == null)
+                            this.grid_backup[j] = Arrays.copyOfRange(this.grid[j], 0, this.grid[j].length);
                     }
                 }
-                lst++;
-            }
-            else{
-                rowsCleared += 1;
-                if(rowsCleared == 1){
-                    for(int i = 0; i < this.width; i ++){
-                        if(this.grid_backup[i] == null)
-                            this.grid_backup[i] = Arrays.copyOfRange(this.grid[i], 0, this.grid[i].length);
-                    }
-                }
-            }
-        }
-        while(lst < this.maxHeight){
-            for (int i = 0; i < this.width; i++) {     
-                this.grid[i][lst] = false;
-            }
-            this.widths[lst] = 0; 
-            lst++;            
-        }
+				shiftRow(i);
+			}
+		}
 
         if(rowsCleared > 0){
-            if(this.maxHeight_backup == -1){
+            // backup maxHeight
+            if (this.maxHeight_backup == -1) {
                 this.maxHeight_backup = this.maxHeight;
             }            
             this.maxHeight -= rowsCleared;
+
+            // change heights            
+            for (int i = 0; i < this.width; i++) {
+                this.heights[i] = 0;
+                for (int j = 0; j < this.height; j++) {
+                    if (this.grid[i][j] == true) {
+                        this.heights[i]++;
+                    }
+                }
+            }
+
+            // uncommitted 
             this.committed = false;
         }
         
-        // YOUR CODE HERE
-        sanityCheck();
+        this.sanityCheck();
         return rowsCleared;
-    }
+
+	}
 
     /**
      * Reverts the board to its state before up to one place
-     * and one clearwidths();
+     * and one clearRows();
      * If the conditions for undo() are not met, such as
      * calling undo() twice in a row, then the second undo() does nothing.
      * See the overview docs.
      */
     public void undo() {
-        if (committed) return; // committed state don't have backup
-        // widths and heights
-        this.heights = Arrays.copyOfRange(this.heights_backup, 0, this.heights_backup.length);
-        this.widths = Arrays.copyOfRange(this.widths_backup, 0, this.widths_backup.length);
+        if (this.committed) return;
 
-        // grid
+        // copy widths and height
+        this.widths = Arrays.copyOfRange(this.widths_backup, 0, this.widths.length);
+        this.heights = Arrays.copyOfRange(this.heights_backup, 0, this.heights.length);
+
+        // copy to grid and maxHeight empty grid and maxHeight backup
         for(int i = 0; i < this.width; i ++){
-            if(this.grid_backup[i] != null){
+            if (this.grid_backup[i] != null) {
                 this.grid[i] = Arrays.copyOfRange(this.grid_backup[i], 0, this.grid_backup[i].length);
-                this.grid_backup[i] = null;
             }
+            this.grid_backup[i] = null;
         }
 
-        // maxHeight
+
         if(this.maxHeight_backup != -1){
             this.maxHeight = this.maxHeight_backup;
-            this.maxHeight_backup = -1;
         }
+        this.maxHeight_backup = -1;
 
-        committed = true;
+        this.committed = true;
     }
 
 
@@ -334,17 +347,17 @@ public class Board {
      */
     public void commit() {
         if (committed) return;
-        // widths and heights
-        this.heights_backup = Arrays.copyOfRange(this.heights, 0, this.heights.length);
-        this.widths_backup = Arrays.copyOfRange(this.widths, 0, this.widths.length);
 
-        //grid
+        // copy to backup
+        this.widths_backup = Arrays.copyOfRange(this.widths, 0, this.widths.length);
+        this.heights_backup = Arrays.copyOfRange(this.heights, 0, this.heights.length);
+
+        // empty grid and maxHeight
         for (int i = 0; i < this.width; i++) {
             this.grid_backup[i] = null;
         }
-
-        // maxHeight
         this.maxHeight_backup = -1;
+
 
         committed = true;
     }
