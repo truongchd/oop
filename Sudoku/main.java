@@ -20,6 +20,18 @@ public class main {
         //problem.printGrid();
 
         System.out.println(problem2.solve());
-        System.out.println(problem2.getSolution(null));
+        problem2.getSolution(null);
+        Sudoku tmp = problem2;
+        tmp.printGrid();
+        while(tmp.getNext() != null) {
+            String current = tmp.toString();
+            tmp = tmp.getNext();
+            String nueva = tmp.toString();
+            for (int i = 0; i < current.length(); i+= 2) {
+                if (current.charAt(i) != nueva.charAt(i)) {
+                    Sudoku.printString(nueva.substring(0, i + 1) + current.substring(i + 1, current.length()));
+                }
+            }
+        }
     }
 }

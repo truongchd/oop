@@ -218,14 +218,25 @@ public class Sudoku {
     }
 
     public void printGrid() {
-        System.out.println("----------------");
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                System.out.print(this.grid[i][j] + "|");
+                System.out.print(this.grid[i][j] == 0 ? "-" : this.grid[i][j]);
+                System.out.print(" ");
             }  
-            System.out.print("\n----------------\n");
+            System.out.print("\n");
         }
-        System.out.println("****************");
+        System.out.println("\n");
+    }
+
+    public static void printString(String sudokuString) {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                System.out.print(sudokuString.charAt((i * 9 + j) * 2) == '0' ? "-" : sudokuString.charAt((i * 9 + j) * 2));
+                System.out.print(" ");
+            }  
+            System.out.print("\n");
+        }
+        System.out.println("\n");
     }
 
     private static int[][] parseString(String gridString) {

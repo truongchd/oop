@@ -7,7 +7,7 @@ public class TextGraphics {
     private int width;
     private int height;
 
-    private static final TextGraphics instance = new TextGraphics();
+    private static final TextGraphics instance = null;
 
     private TextGraphics(int w, int h) {
         this.screen = new char[w][h];
@@ -56,7 +56,8 @@ public class TextGraphics {
         graphics.render();
     }
 
-    public static EagerInitializedSingleton getInstance(){
+    public static EagerInitializedSingleton getInstance(int w, int h){
+        instance = new TextGraphics(w, h);
         return instance;
     }
 }

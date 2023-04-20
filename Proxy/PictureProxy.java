@@ -1,8 +1,10 @@
+package Proxy;
+
 public class PictureProxy implements Graphic {
-    private String fileName;
+    private Picture picture;
 
     public PictureProxy (String fileName) {
-        this.fileName = fileName;
+        this.picture = new Picture(fileName);
     }
 
     public void draw(Point position) {
@@ -11,11 +13,11 @@ public class PictureProxy implements Graphic {
     }
 
     public Dimension getExtent() {
-        return this.getPicture().getExtent();
+        return this.picture.extent;
     }
 
     public Point getPosition() {
-        return this.getPicture().getPosition();
+        return this.picture.position;
     }
 
     public void handleMouse(Event mouseEvent) {
@@ -33,8 +35,8 @@ public class PictureProxy implements Graphic {
         return;
     }
 
-    public Picture getPicture() {
-        return (new Picture(this.fileName));
+    protected Picture getPicture(String fileName) {
+        return this.picture;
     }
 }
 

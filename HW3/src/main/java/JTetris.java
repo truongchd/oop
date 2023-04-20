@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.util.*;
 
 import java.awt.Toolkit;
+import java.io.*;
 
 
 /**
@@ -266,6 +267,7 @@ public class JTetris extends JComponent {
         score++;
 
         if (testMode && count == TEST_LIMIT + 1) {
+            System.out.println("Stop 1");
             stopGame();
             return;
         }
@@ -287,6 +289,7 @@ public class JTetris extends JComponent {
         // the blocks at the top allow space
         // for new pieces to at least be added.
         if (result > Board.PLACE_ROW_FILLED) {
+            System.out.println("Stop 2");
             stopGame();
         }
 
@@ -445,10 +448,16 @@ public class JTetris extends JComponent {
 
             // if the board is too tall, we've lost
             if (board.getMaxHeight() > board.getHeight() - TOP_SPACE) {
+                System.out.println("Stop 3");
                 stopGame();
             }
             // Otherwise add a new piece and keep playing
             else {
+                try {
+                    Thread.sleep(1500);
+                } catch(InterruptedException e) {
+                    System.out.println("got interrupted!");
+                }
                 addNewPiece();
             }
         }
@@ -670,11 +679,14 @@ public class JTetris extends JComponent {
     /**
      * Creates a frame with a JTetris.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         // Set GUI Look And Feel Boilerplate.
         // Do this incantation at the start of main() to tell Swing
         // to use the GUI LookAndFeel of the native platform. It's ok
-        // to ignore the exception.
+        // to ignore the exception
+        
+        PrintStream fileStream = new PrintStream("./output1.txt");
+        System.setOut(fileStream);
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

@@ -1,12 +1,13 @@
+package Proxy;
+
 import java.awt.*;
 
-public class Picture implements Graphic {
-    private String fileName;
-    private Dimension extent;
-    private Point position;
-    private Picture picture;
+class Picture implements Graphic {
+    protected String fileName;
+    protected Dimension extent;
+    protected Point position;
     
-    public Picture(String fileName) {
+    Picture(String fileName) {
         // load information about that Picture fileName
         this.fileName = fileName;
     }

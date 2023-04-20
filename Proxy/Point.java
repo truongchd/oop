@@ -1,3 +1,5 @@
+package Proxy;
+
 public class Point {
     public int x, y;
 

@@ -213,23 +213,9 @@ public class Board {
         for (int i = 0; i < piece_body.length; i++) {
             dx = piece_body[i].x + x;
             dy = piece_body[i].y + y;
-
-            // grid
-            this.grid[dx][dy] = true;            
-            if(this.grid_backup[dx] == null){
-                this.grid_backup[dx] = Arrays.copyOfRange(this.grid[dx], 0, this.grid[dx].length);
-            }
-
-            // height + maxHeight
+            this.grid[dx][dy] = true;
+            this.maxHeight = Math.max(this.maxHeight, dy + 1);
             this.heights[dx] = Math.max(this.heights[dx], dy + 1);
-            if(this.heights[dx] > this.maxHeight){
-                if(this.maxHeight_backup == -1){
-                   this.maxHeight_backup = this.maxHeight; 
-                }
-                this.maxHeight = this.heights[dx];
-            }
-
-            // width + fill row
             this.widths[dy]++; 
             if (this.widths[piece_body[i].y + y] == this.width) {
                 result = PLACE_ROW_FILLED;
@@ -249,52 +235,69 @@ public class Board {
      * Deletes widths that are filled all the way across, moving
      * things above down. Returns the number of widths cleared.
      */
+    public void shiftRow(int col) {
+		int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return;
+        committed = false;
+		for (int i = col; i < cols - 1; i++) {
+			for (int j = 0; j < rows; j++) {
+				this.grid[j][i] = this.grid[j][i + 1];
+			}
+            this.widths[i] = this.widths[i + 1];
+		}
+		for (int i = 0; i < rows; i++) {
+			this.grid[i][cols - 1] = false;
+		}
+        this.widths[cols - 1] = 0;
+	}
+
+    public boolean checkFull(int col) {
+        int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return false;
+		for (int i = 0; i < rows; i++){
+			if (this.grid[i][col] == false) return false;
+		}
+		return true;
+    }
+
+    public boolean checkBlank(int col) {
+        int rows = this.grid.length, cols = this.grid[0].length;
+		if (col >= cols) return false;
+		for (int i = 0; i < rows; i++){
+			if (this.grid[i][col] == true) return false;
+		}
+		return true;
+    }
+
     public int clearRows() {
         int rowsCleared = 0;
-        int lst = 0;
-        for(int i = 0; i < this.width; i ++){
-            this.heights[i] = 0;
-        }
-        for(int j = 0; j < this.maxHeight; j ++){
-            boolean fill = (this.widths[j] == 0 || this.widths[j] == this.width);
-            if(!fill){
-                this.widths[lst] = this.widths[j];
-                for(int i = 0; i < this.width; i ++){                 
-                    this.grid[i][lst] = this.grid[i][j];
-                    if(this.grid[i][lst]){
-                        this.heights[i] = lst+1;
-                    }
-                }
-                lst++;
-            }
-            else{
-                rowsCleared += 1;
-                if(rowsCleared == 1){
-                    for(int i = 0; i < this.width; i ++){
-                        if(this.grid_backup[i] == null)
-                            this.grid_backup[i] = Arrays.copyOfRange(this.grid[i], 0, this.grid[i].length);
-                    }
-                }
-            }
-        }
-        while(lst < this.maxHeight){
-            for (int i = 0; i < this.width; i++) {     
-                this.grid[i][lst] = false;
-            }
-            this.widths[lst] = 0; 
-            lst++;            
-        }
-
-        if(rowsCleared > 0){
-            if(this.maxHeight_backup == -1){
-                this.maxHeight_backup = this.maxHeight;
-            }            
-            this.maxHeight -= rowsCleared;
-            this.committed = false;
-        }
         
-        // YOUR CODE HERE
+		int cols = this.grid[0].length;
+		for (int i = 0; i < cols; i++) {
+			if (checkFull(i) == true) {
+				shiftRow(i);
+                rowsCleared++;
+			}
+		}
+
+        int rowsBlank = 0;
+
+		for (int i = 0; i < cols; i++) {
+			if (checkBlank(i) == true) {
+				shiftRow(i);
+                rowsBlank++;
+			}
+		}
+
+        rowsCleared += rowsBlank;
+
+        for (int i = 0; i < this.width; i++) {
+            this.heights[i] -= rowsCleared;
+        }
+        this.maxHeight -= rowsCleared;
+
         sanityCheck();
+
         return rowsCleared;
     }
 
